@@ -1,0 +1,20 @@
+# Ignore Excel files
+*.xlsx
+*.xls
+*.csv
+
+# Ignore PDF files
+*.pdf
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Streamlit
+.streamlit/
+
+# OS specific
+.DS_Store
+Thumbs.db
