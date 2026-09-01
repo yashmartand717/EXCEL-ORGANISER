@@ -132,7 +132,6 @@ def process_excel_to_bytes(uploaded_file):
     
     return processed_data, warning_msg
 
-import google.generativeai as genai
 from PIL import Image
 
 def extract_teacher_dfs(all_sheets, school_name):

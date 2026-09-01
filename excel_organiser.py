@@ -147,7 +147,6 @@ def process_excel(input_file):
     except Exception as e:
         return False, f"Error saving output file:\n{e}", None
 
-import google.generativeai as genai
 from PIL import Image
 import io
 
