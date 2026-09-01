@@ -182,15 +182,24 @@ def extract_teacher_dfs(all_sheets, school_name):
     
     def format_class_name(cls_str):
         cls_str = cls_str.strip().upper()
+        paren_match = re.search(r'(\([^)]+\))', cls_str)
+        paren_str = ""
+        if paren_match:
+            paren_str = paren_match.group(1).replace(" ", "")
+            cls_str = cls_str.replace(paren_match.group(1), "").strip()
+            
         m = re.match(r'^(\d+)\s*([A-Z])?$', cls_str)
         if m:
             num = m.group(1)
             sec = m.group(2)
             if sec:
-                return f"{num}-{sec}"
+                return f"{num}-{sec}{paren_str}"
             else:
-                return f"{num}-A"
-        return cls_str
+                if paren_str:
+                    return f"{num}{paren_str}"
+                else:
+                    return f"{num}-A"
+        return cls_str + paren_str
     
     all_processed_dfs = {}
     
@@ -249,34 +258,25 @@ def extract_teacher_dfs(all_sheets, school_name):
             for token in tokens:
                 if not token: continue
                 
-                match = re.match(r'^([^(]+)(?:\(([^)]+)\))?$', token)
-                if match:
-                    c_name = match.group(1).strip()
-                    sub_override = match.group(2)
-                    
-                    range_match = re.search(r'(\d+)\s*TO\s*(\d+)', c_name, flags=re.IGNORECASE)
-                    classes_to_emit = []
-                    if range_match:
-                        start = int(range_match.group(1))
-                        end = int(range_match.group(2))
-                        for c_num in range(start, end + 1):
-                            classes_to_emit.append(f"{c_num}-A")
-                    else:
-                        classes_to_emit.append(format_class_name(c_name))
-                    
-                    for emit_class in classes_to_emit:
-                        final_subj = main_subject
-                        if sub_override:
-                            final_subj = map_subject(sub_override)
-                            
-                        output_rows.append({
-                            "first_name": first_name.title(),
-                            "last_name": last_name.title(),
-                            "school": school_name,
-                            "class_name": emit_class,
-                            "subject": final_subj,
-                            "Mobile no": mobile
-                        })
+                range_match = re.search(r'(\d+)\s*TO\s*(\d+)', token, flags=re.IGNORECASE)
+                classes_to_emit = []
+                if range_match:
+                    start = int(range_match.group(1))
+                    end = int(range_match.group(2))
+                    for c_num in range(start, end + 1):
+                        classes_to_emit.append(f"{c_num}-A")
+                else:
+                    classes_to_emit.append(format_class_name(token))
+                
+                for emit_class in classes_to_emit:
+                    output_rows.append({
+                        "first_name": first_name.title(),
+                        "last_name": last_name.title(),
+                        "school": school_name,
+                        "class_name": emit_class,
+                        "subject": main_subject,
+                        "Mobile no": mobile
+                    })
         
         if output_rows:
             df_out = pd.DataFrame(output_rows, columns=["first_name", "last_name", "school", "class_name", "subject", "Mobile no"])
