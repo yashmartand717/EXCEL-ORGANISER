@@ -429,3 +429,24 @@ if uploaded_file is not None:
                     file_name=out_name,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+                
+                st.markdown("### Preview")
+                try:
+                    preview_dfs = pd.read_excel(io.BytesIO(processed_bytes), sheet_name=None)
+                    for sheet_name, df in preview_dfs.items():
+                        with st.expander(f"Sheet: {sheet_name}", expanded=True):
+                            output = io.BytesIO()
+                            with pd.ExcelWriter(output) as writer:
+                                df.to_excel(writer, sheet_name=sheet_name, index=False)
+                            sheet_bytes = output.getvalue()
+                            
+                            st.download_button(
+                                label=f"Download {sheet_name}.xlsx",
+                                data=sheet_bytes,
+                                file_name=f"{sheet_name}.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                key=f"download_{sheet_name}"
+                            )
+                            st.dataframe(df, use_container_width=True)
+                except Exception as e:
+                    st.error(f"Could not load preview: {e}")
