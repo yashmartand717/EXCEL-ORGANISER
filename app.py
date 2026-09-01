@@ -392,7 +392,7 @@ mode = st.radio("Select Processing Mode", ["Student Data", "Teacher Data"])
 
 school_name = ""
 if mode == "Teacher Data":
-    school_name = st.text_input("School Name", value="Prime Steps International School")
+    school_name = st.text_input("School Name", placeholder="Enter school name...")
 
 if mode == "Student Data":
     uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx", "xls"])
@@ -404,14 +404,17 @@ if uploaded_file is not None:
     is_image = uploaded_file.name.lower().endswith(('png', 'jpg', 'jpeg'))
     
     if st.button("Process File"):
-        with st.spinner("Processing..."):
-            if mode == "Student Data":
-                processed_bytes, warning = process_excel_to_bytes(uploaded_file)
-            else:
-                if is_image:
-                    processed_bytes, warning = process_teacher_image_to_bytes(uploaded_file, school_name)
+        if mode == "Teacher Data" and not school_name.strip():
+            st.error("Please enter a school name before processing.")
+        else:
+            with st.spinner("Processing..."):
+                if mode == "Student Data":
+                    processed_bytes, warning = process_excel_to_bytes(uploaded_file)
                 else:
-                    processed_bytes, warning = process_teacher_excel_to_bytes(uploaded_file, school_name)
+                    if is_image:
+                        processed_bytes, warning = process_teacher_image_to_bytes(uploaded_file, school_name)
+                    else:
+                        processed_bytes, warning = process_teacher_excel_to_bytes(uploaded_file, school_name)
             
             if processed_bytes:
                 st.success("File processed successfully!")

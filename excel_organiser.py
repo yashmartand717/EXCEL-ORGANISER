@@ -465,7 +465,7 @@ def create_gui():
     
     input_var = tk.StringVar()
     mode_var = tk.StringVar(value="student")
-    school_var = tk.StringVar(value="Prime Steps International School")
+    school_var = tk.StringVar(value="")
 
     tk.Label(app, text="Input File:").place(x=20, y=20)
     tk.Entry(app, textvariable=input_var, width=40).place(x=120, y=20)
